@@ -1,7 +1,7 @@
 #usr/bin/env python3
 import json
 
-__version__ = 3.1
+__version__ = 3.2
 __author__ = "FLAK-ZOSO"
 
 
@@ -51,19 +51,13 @@ class Moves(object):
         return self.identicals
 
     def hasEquals(self, path="D:\\Python\Python\Variables") -> bool:
-        if (self.equalsList(path=path)):
-            return True
-        return False
+        return bool(self.equalsList(path=path))
 
     def hasWinningEquals(self, path="D:\\Python\Python\Variables") -> bool:
-        if (self.winningEqualsList(path=path)):
-            return True
-        return False
+        return bool(self.winningEqualsList(path=path))
     
     def hasIdenticals(self, path="D:\\Python\Python\Variables") -> bool:
-        if (self.identicalsList()):
-            return True
-        return False
+        return bool(self.identicalsList(path=path))
 
     def save(self, path="D:\\Python\Python\Variables") -> bool:
         with open(rf"{path}\IDs.json", 'r') as file:
