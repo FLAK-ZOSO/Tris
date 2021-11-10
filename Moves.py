@@ -1,17 +1,21 @@
 #usr/bin/env python3
 import json
 
-__version__ = 3.0
+__version__ = 3.1
 __author__ = "FLAK-ZOSO"
+
 
 class Moves(object):
 
     def __init__(self) -> None:
-        self.list = [None, None, None, None, None, None, None, None, None, False]
+        self.list = [
+            None, None, None, None, None,
+            None, None, None, None, False
+        ]
         self.counter = 0
         self.list2 = []
 
-    def add(self, value: chr):
+    def add(self, value: chr) -> None:
         self.list[self.counter] = value
         self.list2.append(value)
         self.counter += 1
@@ -37,6 +41,14 @@ class Moves(object):
                 if (self.equalTo(game) and game[-1]):
                     self.winning_equals.append(game)
         return self.winning_equals
+    
+    def identicalsList(self, path="D:\\Python\Python\Variables") -> list:
+        self.identicals = []
+        with open(rf"{path}\Matches.json", 'r') as file:
+            for game in json.load(file).values():
+                if (self.list == game):
+                    self.identicals.append(game)
+        return self.identicals
 
     def hasEquals(self, path="D:\\Python\Python\Variables") -> bool:
         if (self.equalsList(path=path)):
@@ -44,7 +56,12 @@ class Moves(object):
         return False
 
     def hasWinningEquals(self, path="D:\\Python\Python\Variables") -> bool:
-        if (self.winningEqualsList()):
+        if (self.winningEqualsList(path=path)):
+            return True
+        return False
+    
+    def hasIdenticals(self, path="D:\\Python\Python\Variables") -> bool:
+        if (self.identicalsList()):
             return True
         return False
 
