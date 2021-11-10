@@ -1,10 +1,10 @@
 #usr/bin/env python3
-from random import choice, randint
+from random import choice
 import table
 import Moves
 import Boxes
 
-__version__ = 3.5
+__version__ = 3.6
 __author__ = "FLAK-ZOSO"
 
 def game() -> bool:
@@ -34,8 +34,8 @@ def game() -> bool:
             del b, m
             return False
 
-        # Tie (?)
-        if (m.list[-2] != None): # All the cases are occupied
+        # Draft check
+        if (m.counter == 8): # All the cases are occupied
             print("There's no winner.")
             m.list[-1] = True # A tie is considered a computer's win
             m.save()
@@ -44,12 +44,12 @@ def game() -> bool:
         # Computer's move
         if (m.hasEquals()):
             if (m.hasWinningEquals()):
-                case = int(m.winningEqualsList()[-1][m.counter]) # removed +1
+                case = int(m.winningEqualsList()[-1][m.counter])
             else:
                 possibilities = [1, 2, 3, 4, 5, 6, 7, 8, 9]
                 for game in m.equalsList():
                     try:
-                        possibilities.remove(int(game[m.counter])) # removed +1
+                        possibilities.remove(int(game[m.counter]))
                     except ValueError:
                         pass
                 if (not set(possibilities) - set(avaiableBoxes)):
@@ -67,12 +67,5 @@ def game() -> bool:
         if (b.check()):
             print("The computer won.")
             m.list[-1] = True # The computer won? Yes, True.
-            m.save()
-            return True
-
-        # Tie (?)
-        if (m.list[-2] != None): # All the cases are occupied
-            print("There's no winner.")
-            m.list[-1] = True # A tie is considered a computer's win
             m.save()
             return True
