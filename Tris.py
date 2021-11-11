@@ -1,11 +1,12 @@
-#usr/bin/env python3
+#!/usr/bin/env python3
 from random import choice
 import table
 import Moves
 import Boxes
 
-__version__ = 3.6
+__version__ = 3.7
 __author__ = "FLAK-ZOSO"
+
 
 def game() -> bool:
 
@@ -35,7 +36,7 @@ def game() -> bool:
             return False
 
         # Draft check
-        if (m.counter == 8): # All the cases are occupied
+        if (m.counter >= 8): # All the cases are occupied
             print("There's no winner.")
             m.list[-1] = True # A tie is considered a computer's win
             m.save()
@@ -46,23 +47,24 @@ def game() -> bool:
             if (m.hasWinningEquals()):
                 case = int(m.winningEqualsList()[-1][m.counter])
             else:
-                possibilities = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                possibilities = set([1, 2, 3, 4, 5, 6, 7, 8, 9])
                 for game in m.equalsList():
                     try:
                         possibilities.remove(int(game[m.counter]))
                     except ValueError:
                         pass
-                if (not set(possibilities) - set(avaiableBoxes)):
+                if (not possibilities - set(avaiableBoxes)):
                     case = choice(avaiableBoxes)
-        else:
-            case = choice(avaiableBoxes)
         try:
             b.dict[case] = 'O'
             m.add(str(case))
         except UnboundLocalError:
             b.dict[case := choice(avaiableBoxes)] = 'O'
             m.add(str(case))
-        avaiableBoxes.remove(case)
+        try:
+            avaiableBoxes.remove(case)
+        except KeyError: # The case is not avaiable anymore
+            pass
         del case
         if (b.check()):
             print("The computer won.")
