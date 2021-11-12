@@ -2,7 +2,7 @@
 from random import choice
 import json
 
-__version__ = 'v2.1.0'
+__version__ = 'v2.2.0'
 __author__ = "FLAK-ZOSO"
 
 
@@ -83,7 +83,7 @@ class Moves(object):
         return bool(self.identicalsList())
 
     def isFinished(self) -> bool:
-        return (self.counter == 8 and len(self.list2) == 9)
+        return (self.counter >= 8 and len(self.list2) == 9)
 
     def save(self) -> bool:
         with open(rf"IDs.json", 'r') as file:
@@ -93,8 +93,18 @@ class Moves(object):
         with open(rf"Matches.json", 'r') as file:
             dictionary = json.load(file)
         with open(rf"Matches.json", 'w') as file:
-            dictionary[id_] = self.list
-            json.dump(dictionary, file, indent=4)
+            dictionary[str(id_)] = self.list
+            file.write(encodeMatches(dictionary))
+        return True
+
+
+def encodeMatches(dictionary: dict) -> str:
+    result = "{\n    "
+    for key, value in dictionary.items():
+        result += f"""\n    {json.dumps(key)}: {json.dumps(value)},"""
+    result = result[:-1]
+    result += "\n}"
+    return result
 
 
 def table(boxes) -> str:
@@ -126,7 +136,7 @@ def game() -> bool:
     # Game
     while (True):
         # Printing the table
-        print(table.table(b.dict.values()))
+        print(table(b.dict.values()))
 
         # User's move
         move = input("Insert the number of the case you want: ")
@@ -143,6 +153,10 @@ def game() -> bool:
             del b, m
             return False
         
+        # Draft check
+        if (m.finishIf()):
+            return True
+
         # Computer's move
         if (m.hasEquals()):
             if (m.hasWinningEquals()):
@@ -162,17 +176,10 @@ def game() -> bool:
         except UnboundLocalError: # The variable case is still empty
             b.dict[case := choice(avaiableBoxes)] = 'O'
             m.add(str(case))
-        try:
-            avaiableBoxes.remove(case)
-        except KeyError: # The case is not avaiable anymore
-            pass
+        avaiableBoxes.remove(case)
         del case
         if (b.check()):
             print("The computer won.")
             m.list[-1] = True # The computer won? Yes, True.
             m.save()
-            return True
-    
-        # Draft check
-        if (m.finishIf()):
             return True
