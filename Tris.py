@@ -1,18 +1,126 @@
 #!/usr/bin/env python3
 from random import choice
-import table
-import Moves
-import Boxes
+import json
 
-__version__ = 3.7
+__version__ = 'v2.1.0'
 __author__ = "FLAK-ZOSO"
+
+
+class Box(object):
+
+    def __init__(self) -> None:
+        self.dict = {1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9'}
+
+    def check(self) -> bool:
+        c = self.dict
+        if (c[1] == c[2] == c[3] or c[4] == c[5] == c[6] or c[7] == c[8] == c[9]): # Orizontals
+            return True
+        if (c[1] == c[4] == c[7] or c[2] == c[5] == c[8] or c[3] == c[6] == c[9]):  # Verticals
+            return True
+        if (c[1] == c[5] == c[9] or c[3] == c[5] == c[7]): # Diagonals
+            return True
+        return False
+
+
+class Moves(object):
+
+    def __init__(self) -> None:
+        self.list = [
+            None, None, None, None, None,
+            None, None, None, None, False
+        ]
+        self.counter = 0
+        self.list2 = []
+
+    def add(self, value: chr) -> None:
+        self.list[self.counter] = value
+        self.list2.append(value)
+        self.counter += 1
+
+    def equalTo(self, moves: list) -> bool:
+        for idx, val in enumerate(self.list2):
+            if (val != moves[idx]):
+                return False
+        return True
+    
+    def equalsList(self) -> list:
+        self.equals = []
+        with open(rf"Matches.json", 'r') as file:
+            for game in json.load(file).values():
+                if (self.equalTo(game)):
+                    self.equals.append(game)
+        return self.equals
+    
+    def winningEqualsList(self) -> list:
+        self.winning_equals = []
+        with open(rf"Matches.json", 'r') as file:
+            for game in json.load(file).values():
+                if (self.equalTo(game) and game[-1]):
+                    self.winning_equals.append(game)
+        return self.winning_equals
+    
+    def identicalsList(self) -> list:
+        self.identicals = []
+        with open(rf"Matches.json", 'r') as file:
+            for game in json.load(file).values():
+                if (self.list == game):
+                    self.identicals.append(game)
+        return self.identicals
+
+    def finishIf(self) -> bool:
+        if (self.isFinished()):
+            print("There's no winner.")
+            self.list[-1] = True # A draft is considered a computer's win
+            return self.save()
+
+    def hasEquals(self) -> bool:
+        return bool(self.equalsList())
+
+    def hasWinningEquals(self) -> bool:
+        return bool(self.winningEqualsList())
+    
+    def hasIdenticals(self) -> bool:
+        return bool(self.identicalsList())
+
+    def isFinished(self) -> bool:
+        return (self.counter == 8 and len(self.list2) == 9)
+
+    def save(self) -> bool:
+        with open(rf"IDs.json", 'r') as file:
+            id_ = int(file.read())+1
+        with open(rf"IDs.json", 'w') as file:
+            file.write(str(id_))
+        with open(rf"Matches.json", 'r') as file:
+            dictionary = json.load(file)
+        with open(rf"Matches.json", 'w') as file:
+            dictionary[id_] = self.list
+            json.dump(dictionary, file, indent=4)
+
+
+def table(boxes) -> str:
+    a = [0, *boxes]
+    return f"""
+------------------------------------------------------
+|                   |                      |                    |
+|        {a[1]}          |          {a[2]}          |         {a[3]}         |
+|                   |                      |                    |
+------------------------------------------------------
+|                   |                      |                    |
+|        {a[4]}         |          {a[5]}          |         {a[6]}         |
+|                   |                      |                    |
+------------------------------------------------------
+|                   |                      |                    |
+|        {a[7]}         |          {a[8]}          |         {a[9]}         |
+|                   |                      |                    |
+------------------------------------------------------
+"""
 
 
 def game() -> bool:
 
     # Start
-    b = Boxes.Box()
-    m = Moves.Moves()
+    b = Box()
+    m = Moves()
     avaiableBoxes = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
     # Game
@@ -34,18 +142,11 @@ def game() -> bool:
             print("Your case is already occupied. Game Over.")
             del b, m
             return False
-
-        # Draft check
-        if (m.counter >= 8): # All the cases are occupied
-            print("There's no winner.")
-            m.list[-1] = True # A tie is considered a computer's win
-            m.save()
-            return True
         
         # Computer's move
         if (m.hasEquals()):
             if (m.hasWinningEquals()):
-                case = int(m.winningEqualsList()[-1][m.counter])
+                case = int(m.winningEqualsList() [-1] [m.counter])
             else:
                 possibilities = set([1, 2, 3, 4, 5, 6, 7, 8, 9])
                 for game in m.equalsList():
@@ -58,7 +159,7 @@ def game() -> bool:
         try:
             b.dict[case] = 'O'
             m.add(str(case))
-        except UnboundLocalError:
+        except UnboundLocalError: # The variable case is still empty
             b.dict[case := choice(avaiableBoxes)] = 'O'
             m.add(str(case))
         try:
@@ -70,4 +171,8 @@ def game() -> bool:
             print("The computer won.")
             m.list[-1] = True # The computer won? Yes, True.
             m.save()
+            return True
+    
+        # Draft check
+        if (m.finishIf()):
             return True
