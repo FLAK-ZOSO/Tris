@@ -2,7 +2,7 @@
 from random import choice
 import json
 
-__version__ = 'v2.2.0'
+__version__ = 'v2.2.1'
 __author__ = "FLAK-ZOSO"
 
 
@@ -166,7 +166,7 @@ def game() -> bool:
                 for game in m.equalsList():
                     try:
                         possibilities.remove(int(game[m.counter]))
-                    except ValueError:
+                    except KeyError:
                         pass
                 if (not possibilities - set(avaiableBoxes)):
                     case = choice(avaiableBoxes)
