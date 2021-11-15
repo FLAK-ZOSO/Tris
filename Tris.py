@@ -2,7 +2,7 @@
 from random import choice
 import json
 
-__version__ = 'v2.2.1'
+__version__ = 'v2.2.2'
 __author__ = "FLAK-ZOSO"
 
 
@@ -99,7 +99,7 @@ class Moves(object):
 
 
 def encodeMatches(dictionary: dict) -> str:
-    result = "{\n    "
+    result = "{"
     for key, value in dictionary.items():
         result += f"""\n    {json.dumps(key)}: {json.dumps(value)},"""
     result = result[:-1]
@@ -107,23 +107,11 @@ def encodeMatches(dictionary: dict) -> str:
     return result
 
 
-def table(boxes) -> str:
-    a = [0, *boxes]
-    return f"""
-------------------------------------------------------
-|                   |                      |                    |
-|        {a[1]}          |          {a[2]}          |         {a[3]}         |
-|                   |                      |                    |
-------------------------------------------------------
-|                   |                      |                    |
-|        {a[4]}         |          {a[5]}          |         {a[6]}         |
-|                   |                      |                    |
-------------------------------------------------------
-|                   |                      |                    |
-|        {a[7]}         |          {a[8]}          |         {a[9]}         |
-|                   |                      |                    |
-------------------------------------------------------
-"""
+def table(b) -> None:
+    b = [*b]
+    Table = [(b[0], b[1], b[2]), (b[3], b[4], b[5]), (b[6], b[7], b[8])]
+    for line in Table:
+        print(*line)
 
 
 def game() -> bool:
@@ -136,7 +124,7 @@ def game() -> bool:
     # Game
     while (True):
         # Printing the table
-        print(table(b.dict.values()))
+        table(b.dict.values())
 
         # User's move
         move = input("Insert the number of the case you want: ")
