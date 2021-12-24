@@ -2,7 +2,7 @@
 from random import choice
 import json
 
-__version__ = 'v2.3.1'
+__version__ = 'v3.0.0'
 __author__ = "FLAK-ZOSO"
 
 
