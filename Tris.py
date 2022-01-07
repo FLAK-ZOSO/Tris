@@ -53,7 +53,7 @@ class Moves(object):
         self.list2.append(value)
         self.counter += 1
 
-    def __equalTo(self, moves: list) -> bool:
+    def _equalTo(self, moves: list) -> bool:
         for idx, val in enumerate(self.list2):
             if (val != moves[idx]):
                 return False
@@ -63,7 +63,7 @@ class Moves(object):
         self.equals = []
         with open(rf"Matches.json", 'r') as file:
             for game in json.load(file).values():
-                if (self.__equalTo(game)):
+                if (self._equalTo(game)):
                     self.equals.append(game)
         return self.equals
     
@@ -71,11 +71,11 @@ class Moves(object):
         self.winning_equals = []
         with open(rf"Matches.json", 'r') as file:
             for game in json.load(file).values():
-                if (self.__equalTo(game) and game[-1]):
+                if (self._equalTo(game) and game[-1]):
                     self.winning_equals.append(game)
         return self.winning_equals
     
-    def __identicalsList(self) -> list:
+    def _identicalsList(self) -> list:
         self.identicals = []
         with open(rf"Matches.json", 'r') as file:
             for game in json.load(file).values():
@@ -84,7 +84,7 @@ class Moves(object):
         return self.identicals
 
     def finishIf(self) -> bool:
-        if (self.__isFinished()):
+        if (self._isFinished()):
             print("There's no winner.")
             self.list[-1] = True # A draft is considered a computer's win
             return self.save()
@@ -96,9 +96,9 @@ class Moves(object):
         return bool(self.winningEqualsList())
     
     def hasIdenticals(self) -> bool:
-        return bool(self.__identicalsList())
+        return bool(self._identicalsList())
 
-    def __isFinished(self) -> bool:
+    def _isFinished(self) -> bool:
         return (self.counter >= 8 and len(self.list2) == 9)
 
     def save(self) -> bool:
