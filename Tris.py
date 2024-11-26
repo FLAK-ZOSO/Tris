@@ -148,26 +148,32 @@ def game() -> bool:
         if (m.hasEquals()):
             if (m.hasWinningEquals()):
                 case = int(m.winningEqualsList()[-1][m.cursor])
-            else:
-                possibilities = {1, 2, 3, 4, 5, 6, 7, 8, 9}
-                for game in m.equalsList():
-                    try:
-                        possibilities.remove(int(game[m.cursor]))
-                    except KeyError:
-                        pass
-                if (not possibilities - set(avaiableBoxes)):
+            else: # The previously played games are not winning
+                if (len(m.equalsList()) == 9): # All the possibilities are cooked
                     case = choice(avaiableBoxes)
+                else:
+                    possibilities = {1, 2, 3, 4, 5, 6, 7, 8, 9}
+                    for game in m.equalsList():
+                        try:
+                            possibilities.remove(int(game[m.cursor]))
+                        except KeyError:
+                            pass
+                    # print(f"Computer's possibilities: {possibilities}")
+                    # print(f"Avaiable boxes: {avaiableBoxes}")
+                    # print(f"Intersection: {possibilities.intersection(avaiableBoxes)}")
+                    if possibilities.intersection(avaiableBoxes):
+                        case = choice(list(possibilities.intersection(avaiableBoxes)))
+                    else:
+                        case = choice(avaiableBoxes)
+        else:
+            case = choice(avaiableBoxes)
         try:
             b.grid[case] = 'O'
             m.add(str(case))
         except UnboundLocalError: # The variable case is still empty
             b.grid[case := choice(avaiableBoxes)] = 'O'
             m.add(str(case))
-        try:
-            avaiableBoxes.remove(case)
-        except ValueError:
-            print("The computer tried to remove a box that was already removed.", file=sys.stderr)
-            pass
+        avaiableBoxes.remove(case)
 
         if (b.check()):
             print("The computer won.")
