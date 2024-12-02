@@ -3,7 +3,7 @@ from random import choice
 import json
 import sys
 
-__version__ = '3.2.0'
+__version__ = '3.2.1'
 __author__ = "FLAK-ZOSO"
 ANSI = True
 
