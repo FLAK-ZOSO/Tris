@@ -187,7 +187,8 @@ def game() -> bool:
             b.grid[case] = 'O'
             m.add(str(case))
         except UnboundLocalError: # The variable case is still empty
-            b.grid[case := choice(avaiableBoxes)] = 'O'
+            case = choice(avaiableBoxes)
+            b.grid[case] = 'O'
             m.add(str(case))
         avaiableBoxes.remove(case)
 
