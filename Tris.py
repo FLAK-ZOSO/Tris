@@ -3,9 +3,9 @@ from random import choice
 import json
 import sys
 
-__version__ = '3.1.0'
+__version__ = '3.2.0'
 __author__ = "FLAK-ZOSO"
-
+ANSI = True
 
 class Box(object):
 
@@ -25,6 +25,23 @@ class Box(object):
         )
 
     def print(self) -> None:
+        _ = [*self.grid.values()]
+        table = [
+            (_[0], _[1], _[2]), 
+            (_[3], _[4], _[5]), 
+            (_[6], _[7], _[8])
+        ]
+        for line in table:
+            for box in line:
+                if (box == 'X'):
+                    print("\033[1;31mX\033[0m", end=' ')
+                elif (box == 'O'):
+                    print("\033[1;32mO\033[0m", end=' ')
+                else:
+                    print(box, end=' ')
+            print()
+
+    def unansiPrint(self) -> None:
         _ = [*self.grid.values()]
         table = [
             (_[0], _[1], _[2]), 
@@ -123,22 +140,24 @@ def game() -> bool:
     avaiableBoxes = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
     while (True):
+        print("\x1b[2J\x1b[H") # Clearing the screen
+        print("Professor Falken, here's the table:\n")
         # Printing the table
-        b.print()
+        b.print() if ANSI else b.unansiPrint()
 
         # User's move
-        move = input("Insert the number of the case you want: ")
+        move = input("\n> ")
         if (b.grid[int(move)] == move): # The box is free
             b.grid[int(move)] = 'X'
             m.add(move)
             avaiableBoxes.remove(int(move))
-            if (b.check()):
-                print("The human player won.")
-                m.save()
-                return True
         else: # The box is already occupied
             print("Your case is already occupied. Game Over.")
-            return False
+            exit(1)
+        if (b.check()):
+            print("The human player won.")
+            m.save()
+            return True
         
         # Draft check
         if (m.finishIf()):
@@ -157,10 +176,7 @@ def game() -> bool:
                         try:
                             possibilities.remove(int(game[m.cursor]))
                         except KeyError:
-                            pass
-                    # print(f"Computer's possibilities: {possibilities}")
-                    # print(f"Avaiable boxes: {avaiableBoxes}")
-                    # print(f"Intersection: {possibilities.intersection(avaiableBoxes)}")
+                            pass # TODO: if there are more games in which the prefix is that one, it may be either more or less reasonable to go for that option... this may improve the engine
                     if possibilities.intersection(avaiableBoxes):
                         case = choice(list(possibilities.intersection(avaiableBoxes)))
                     else:
@@ -176,6 +192,8 @@ def game() -> bool:
         avaiableBoxes.remove(case)
 
         if (b.check()):
+            print("\x1b[2J\x1b[H") # Clearing the screen
+            b.print() if ANSI else b.unansiPrint()
             print("The computer won.")
             m.resume[-1] = True # The computer won? Yes, True.
             m.save()
@@ -183,6 +201,26 @@ def game() -> bool:
 
 
 if __name__ == '__main__':
+    if (len(sys.argv) > 1):
+        if (sys.argv[1] == "--no-ansi"):
+            ANSI = False
+        elif (sys.argv[1] == "--help"):
+            print("Tris is a Tic-Tac-Toe game. It's a Python module that can be imported in your project.")
+            print("You can run it as a standalone program, too.")
+            print("Options:")
+            print("  --no-ansi: disable the ANSI colors.")
+            print("  --help: show this help.")
+            print("  --version: show the version.")
+            print("  --reset: reset the learning status of Joshua.")
+            sys.exit(0)
+        elif (sys.argv[1] == "--version"):
+            print(f"Tris v{__version__} by {__author__}.")
+            sys.exit(0)
+        elif (sys.argv[1] == "--reset"):
+            with open(rf"Matches.json", 'w') as file:
+                file.write("{\n}")
+            print("The file Matches.json has been reset.")
+            sys.exit(0)
     print(f"Professor Falken, welcome to Tris v{__version__} by {__author__}.")
     game()
 else:
